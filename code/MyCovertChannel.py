@@ -23,7 +23,14 @@ class MyCovertChannel(CovertChannelBase):
         """
         binary_message = self.generate_random_binary_message_with_logging(log_file_name)
 
+        start_time = time.time()
+
         self.send_packets(binary_message, wait_0, wait_1)
+
+        end_time = time.time()
+
+        capacity = len(binary_message) / (end_time - start_time)
+        print(capacity)
 
     def send_packets(self, binary_message, wait_0, wait_1):
         
@@ -90,8 +97,6 @@ class MyCovertChannel(CovertChannelBase):
             if len(self.received_message) > 0 and len(self.received_message) % 8 == 0:
                 last_byte = self.received_message[-8:]
                 last_char = super().convert_eight_bits_to_character(last_byte)
-
-                print(last_char)
 
                 if last_char == ".":
                     break
