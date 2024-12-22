@@ -4,12 +4,18 @@ from CovertChannelBase import CovertChannelBase
 
 class MyCovertChannel(CovertChannelBase):
     """
-    - You are not allowed to change the file name and class name.
-    - You can edit the class in any way you want (e.g. adding helper functions); however, there must be a "send" and a "receive" function, the covert channel will be triggered by calling these functions.
+   This class implements a covert timing channel using ICMP packets.
+    
+    - The `send` function generates and transmits a binary message to a receiver by manipulating packet inter-arrival times.
+    - The `receive` function listens for incoming ICMP packets and decodes the binary message based on the inter-arrival time.
+    - A termination condition is implemented to stop message transmission or reception when a specific signal (e.g., a dummy packet or a "." character) is detected.
     """
     def __init__(self):
         """
-        - You can edit __init__.
+        - Initializes the covert channel with necessary variables.
+        - `self.received_message`: Stores the binary representation of the received message.
+        - `self.previous_time`: Tracks the time of the previous packet to calculate inter-arrival time.
+        - `self.destination`: Destination IP address or hostname for the receiver.
         """
         super().__init__()
         self.received_message = ""
@@ -18,8 +24,9 @@ class MyCovertChannel(CovertChannelBase):
 
     def send(self, log_file_name, wait_0, wait_1):
         """
-        - In this function, you expected to create a random message (using function/s in CovertChannelBase), and send it to the receiver container. Entire sending operations should be handled in this function.
-        - After the implementation, please rewrite this comment part to explain your code basically.
+        - Generates a random binary message and sends it to the receiver using ICMP packets.
+        - Logs the binary message to the specified log file.
+        - Uses `send_packets` to handle the actual packet transmission with delays corresponding to binary bits.
         """
         binary_message = self.generate_random_binary_message_with_logging(log_file_name)
 
@@ -33,7 +40,11 @@ class MyCovertChannel(CovertChannelBase):
         print(capacity)
 
     def send_packets(self, binary_message, wait_0, wait_1):
-        
+        """
+        - Sends ICMP packets based on the binary message.
+        - Delays between packet transmissions represent binary `0` and `1`.
+        - A dummy packet is sent at the end to indicate termination.
+        """
         for bit in binary_message:
             # create the packet
             packet = scapy.IP(
@@ -67,8 +78,9 @@ class MyCovertChannel(CovertChannelBase):
         
     def receive(self, log_file_name, bound_0, bound_1):
         """
-        - In this function, you are expected to receive and decode the transferred message. Because there are many types of covert channels, the receiver implementation depends on the chosen covert channel type, and you may not need to use the functions in CovertChannelBase.
-        - After the implementation, please rewrite this comment part to explain your code basically.
+        - Receives ICMP packets and decodes the binary message based on inter-arrival times.
+        - Appends decoded bits to `self.received_message` and stops on receiving a dummy packet or "." character.
+        - Logs the final decoded message to the specified log file.
         """
         while True:
             # wait for the packet
